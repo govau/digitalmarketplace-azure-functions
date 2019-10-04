@@ -42,8 +42,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
     var agencyQuery = new AgencyQuery(connectionString);
     var agencyData = await agencyQuery.GetAggregationsAsync();
 
-    var briefQuery = new BriefQuery(connectionString);
-    var briefData = await briefQuery.GetAggregationsAsync(now);
+    var briefQuery = new BriefQuery(now, connectionString);
+    var briefData = await briefQuery.GetAggregationsAsync();
 
     var result = new {
         agencyData,

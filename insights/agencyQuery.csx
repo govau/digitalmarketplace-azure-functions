@@ -2,6 +2,7 @@
 
 #load "query.csx"
 #load "vwRptMarketplaceAgency.csx"
+#load "../NameCount.csx"
 
 using System.Data.SqlClient;
 
@@ -31,21 +32,21 @@ FROM [Data].[VW_RPT_Marketplace_Agency]
 
         var agencyTypeCounts = vwRptMarketplaceAgencies.GroupBy(
             a => a.AgencyTypeOfBody,
-            (key, e) => new {
-                AgencyTypeOfBody = key,
-                AgencyTypeOfBodyCount = e.Count()
+            (key, e) => new NameCount {
+                Name = key,
+                Count = e.Count()
             });
 
         var agencyCommonwealthCounts = vwRptMarketplaceAgencies.GroupBy(
             a => a.AgencyCommonwealthFlag,
-            (key, e) => new {
-                AgencyCommonwealthFlag = key,
-                AgencyCommonwealthFlagCount = e.Count()
+            (key, e) => new NameCount {
+                Name = key,
+                Count = e.Count()
             });
 
         var commonwealthPercent =
-            agencyCommonwealthCounts.Where(a => a.AgencyCommonwealthFlag == "Y").SingleOrDefault()?.AgencyCommonwealthFlagCount /
-            (decimal)agencyCommonwealthCounts.Sum(a => a.AgencyCommonwealthFlagCount) *
+            agencyCommonwealthCounts.Where(a => a.Name == "Y").SingleOrDefault()?.Count /
+            (decimal)agencyCommonwealthCounts.Sum(a => a.Count) *
             100;
 
         return new {

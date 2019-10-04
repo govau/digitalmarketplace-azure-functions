@@ -2,6 +2,7 @@
 
 #load "query.csx"
 #load "vwRptMarketplaceBrief.csx"
+#load "../NameCount.csx"
 
 using System.Data.SqlClient;
 
@@ -16,8 +17,11 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
 	inner join [Reference].[VW_Ref_Date_Range_EOM]  dr on rd.Date_FY_NR = dr.Date_FY_NR 
 					         and rd.Date_FY_Month_NR <= case when dr.Row_FY_NR_desc = 1 then dr.Date_FY_Month_NR else 12 end
     ";
+    private readonly DateTime _now;
 
-    public BriefQuery(string connectionString) : base(connectionString) { }
+    public BriefQuery(DateTime now, string connectionString) : base(connectionString) {
+        _now = now;
+    }
 
     public async Task<List<VwRptMarketplaceBrief>> GetBriefsAsync() {
         return await base.ExecuteQueryAsync<VwRptMarketplaceBrief>(_briefQuery, (reader) => {
@@ -44,35 +48,74 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
         });
     }
 
-    public async Task<dynamic> GetAggregationsAsync(DateTime now) {
+    public async Task<dynamic> GetAggregationsAsync() {
         var briefs = await GetBriefsAsync();
 
         var topBuyers = briefs
             .Where(
-                b => b.BriefPublishedDate.Year == now.Year &&
-                b.BriefPublishedDate.Month == now.Month
+                b => b.BriefPublishedDate.Year == _now.Year &&
+                     b.BriefPublishedDate.Month == _now.Month
             )
-            .GroupBy(b => b.BriefAgencyName, (key, b) => {
-                return new {
-                    BriefAgencyName = key,
-                    BriefCount = b.Count()
-                };
-            })
-            .OrderByDescending(b => b.BriefCount);
+            .GroupBy(b => b.BriefAgencyName,
+                (key, b) => new NameCount {
+                    Name = key,
+                    Count = b.Count()
+                }
+            )
+            .OrderByDescending(b => b.Count);
 
-        var topCategories = briefs
-            .Where(b => b.BriefCategory != "Not Specified")
-            .GroupBy(b => b.BriefCategory, (key, b) => {
-                return new {
-                    BriefCategory = key,
-                    BriefCategoryCount = b.Count()
-                };
-            })
-            .OrderByDescending(b => b.BriefCategoryCount);
+        var openToAllBrief = briefs
+            .GroupBy(b => b.BriefOpenTo,
+                (key, b) => new NameCount {
+                    Name = key,
+                    Count = b.Count()
+                }
+            );
+        
+        var openToAllBriefPercentage = openToAllBrief.Where(b => b.Name == "All").SingleOrDefault().Count /
+            (decimal)openToAllBrief.Sum(b => b.Count) *
+            100;
+
+        var specialistBrief = briefs
+            .GroupBy(b => b.BriefType,
+                (key, b) => new NameCount {
+                    Name = key,
+                    Count = b.Count()
+                }
+            );
+        
+        var specialistBriefPercentage = specialistBrief.Where(b => b.Name == "Specialist").SingleOrDefault().Count /
+            (decimal)specialistBrief.Sum(b => b.Count) *
+            100;
 
         return new {
+            openToAllBrief,
+            openToAllBriefPercentage,
+            specialistBrief,
+            specialistBriefPercentage,
             topBuyers,
-            topCategories
+            topCategories = GetTopCategories(briefs),
+            totalBriefs = briefs.Count(),
+            totalBriefsThisMonth = GetTotalBriefsThisMonth(briefs)
         };
+    }
+
+    private IEnumerable<NameCount> GetTopCategories(List<VwRptMarketplaceBrief> briefs) {
+        return briefs
+            .Where(b => b.BriefCategory != "Not Specified")
+            .GroupBy(b => b.BriefCategory, (key, b) => new NameCount {
+                Name = key,
+                Count = b.Count()
+            })
+            .OrderByDescending(b => b.Count)
+            .Take(5);
+    }
+    private int GetTotalBriefsThisMonth(List<VwRptMarketplaceBrief> briefs) {
+        return briefs
+            .Where(
+                b => b.BriefPublishedDate.Year == _now.Year &&
+                     b.BriefPublishedDate.Month == _now.Month
+            )
+            .Count();
     }
 }
