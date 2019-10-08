@@ -24,4 +24,10 @@ internal class Query {
         return result;
     }
 
+    protected T GetFieldValueOrNull<T>(SqlDataReader reader, int i) {
+        if (reader.IsDBNull(i)) {
+            return default(T);
+        }
+        return reader.GetFieldValue<T>(i);
+    }
 }

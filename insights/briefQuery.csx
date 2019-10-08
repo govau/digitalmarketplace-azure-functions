@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 
 internal class BriefQuery : Query {
 
-    private readonly string _briefQuery = @"
+    private readonly string _query = @"
 select	mb.*,
 	case when dr.Row_FY_NR_desc = 1 and rd.Date_FY_Month_NR = dr.Date_FY_Month_NR then 'Y' else 'N' end [Brief Published Date Latest Month Flag],
 	case when dr.Row_FY_NR_desc = 1 then 'Y' else 'N' end [Brief Published Date Latest FinYear Flag]
@@ -23,48 +23,46 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
         _now = now;
     }
 
-    public async Task<List<VwRptMarketplaceBrief>> GetBriefsAsync() {
-        return await base.ExecuteQueryAsync<VwRptMarketplaceBrief>(_briefQuery, (reader) => {
-            var item = new VwRptMarketplaceBrief {
-                BriefId = reader.GetInt32(0),
-                BriefTitle = reader.GetString(1),
-                BriefTypeLevel2 = reader.GetString(2),
-                BriefType = reader.GetString(3),
-                BriefCategory = reader.GetString(4),
-                BriefOpenTo = reader.GetString(5),
-                BriefPublishedDate = reader.GetDateTime(6),
-                BriefPublishedDateFinancialYear = reader.GetString(7),
-                BriefPublishedDateMonthEnding = reader.GetDateTime(8),
-                MonthOfBriefPublishedDate = reader.GetString(9),
-
-                BriefAgencyName = reader.GetString(11),
-                BriefPublishedDateLatestMonthFlag = reader.GetString(12),
-                BriefPublishedDateLatestFinYearFlag = reader.GetString(13)
-            };
-            if (reader.IsDBNull(10) == false) {
-                item.BriefWithdrawnDate = reader.GetDateTime(10);
+    public async Task<List<VwRptMarketplaceBrief>> GetDataAsync() {
+        return await base.ExecuteQueryAsync<VwRptMarketplaceBrief>(_query, (reader) => (
+            new VwRptMarketplaceBrief {
+                BriefId = GetFieldValueOrNull<int>(reader, 0),
+                BriefTitle = GetFieldValueOrNull<string>(reader, 1),
+                BriefTypeLevel2 = GetFieldValueOrNull<string>(reader, 2),
+                BriefType = GetFieldValueOrNull<string>(reader, 3),
+                BriefCategory = GetFieldValueOrNull<string>(reader, 4),
+                BriefOpenTo = GetFieldValueOrNull<string>(reader, 5),
+                BriefPublishedDate = GetFieldValueOrNull<DateTime>(reader, 6),
+                BriefPublishedDateFinancialYear = GetFieldValueOrNull<string>(reader, 7),
+                BriefPublishedDateMonthEnding = GetFieldValueOrNull<DateTime>(reader, 8),
+                MonthOfBriefPublishedDate = GetFieldValueOrNull<string>(reader, 9),
+                BriefWithdrawnDate = GetFieldValueOrNull<DateTime>(reader, 10),
+                BriefAgencyName = GetFieldValueOrNull<string>(reader, 11),
+                BriefPublishedDateLatestMonthFlag = GetFieldValueOrNull<string>(reader, 12),
+                BriefPublishedDateLatestFinYearFlag = GetFieldValueOrNull<string>(reader, 13)
             }
-            return item;
-        });
+        ));
     }
 
     public async Task<dynamic> GetAggregationsAsync() {
-        var briefs = await GetBriefsAsync();
+        var data = await GetDataAsync();
 
-        var topBuyers = briefs
+        var topBuyersThisMonth = data
             .Where(
-                b => b.BriefPublishedDate.Year == _now.Year &&
-                     b.BriefPublishedDate.Month == _now.Month
+                d => d.BriefPublishedDate.Year == _now.Year &&
+                     d.BriefPublishedDate.Month == _now.Month
             )
-            .GroupBy(b => b.BriefAgencyName,
+            .GroupBy(d => d.BriefAgencyName,
                 (key, b) => new NameCount {
                     Name = key,
                     Count = b.Count()
                 }
             )
-            .OrderByDescending(b => b.Count);
+            .OrderByDescending(d => d.Count)
+            .Take(5);
 
-        var openToAllBrief = briefs
+        var openToAllBrief = data
+            .Where(d => d.BriefPublishedDate.Date <= _now.Date)
             .GroupBy(b => b.BriefOpenTo,
                 (key, b) => new NameCount {
                     Name = key,
@@ -76,7 +74,8 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             (decimal)openToAllBrief.Sum(b => b.Count) *
             100;
 
-        var specialistBrief = briefs
+        var specialistBrief = data
+            .Where(d => d.BriefPublishedDate.Date <= _now.Date)
             .GroupBy(b => b.BriefType,
                 (key, b) => new NameCount {
                     Name = key,
@@ -88,21 +87,26 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             (decimal)specialistBrief.Sum(b => b.Count) *
             100;
 
+        var totalBriefs = data
+            .Where(d => d.BriefPublishedDate.Date <= _now.Date)
+            .Count();
+
         return new {
             openToAllBrief,
             openToAllBriefPercentage,
             specialistBrief,
             specialistBriefPercentage,
-            topBuyers,
-            topCategories = GetTopCategories(briefs),
-            totalBriefs = briefs.Count(),
-            totalBriefsThisMonth = GetTotalBriefsThisMonth(briefs)
+            topBuyersThisMonth,
+            topCategories = GetTopCategories(data),
+            totalBriefs,
+            totalBriefsThisMonth = GetTotalBriefsThisMonth(data)
         };
     }
 
-    private IEnumerable<NameCount> GetTopCategories(List<VwRptMarketplaceBrief> briefs) {
-        return briefs
-            .Where(b => b.BriefCategory != "Not Specified")
+    private IEnumerable<NameCount> GetTopCategories(List<VwRptMarketplaceBrief> data) {
+        return data
+            .Where(d => d.BriefCategory != "Not Specified")
+            .Where(d => d.BriefPublishedDate.Date <= _now.Date)
             .GroupBy(b => b.BriefCategory, (key, b) => new NameCount {
                 Name = key,
                 Count = b.Count()

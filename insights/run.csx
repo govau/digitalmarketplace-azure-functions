@@ -8,7 +8,9 @@
 #r "Microsoft.Extensions.Configuration.Json"
 #load "vwRptMarketplaceAgency.csx"
 #load "agencyQuery.csx"
+#load "austenderQuery.csx"
 #load "briefQuery.csx"
+#load "supplierQuery.csx"
 
 using System;
 using System.Net;
@@ -45,9 +47,17 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
     var briefQuery = new BriefQuery(now, connectionString);
     var briefData = await briefQuery.GetAggregationsAsync();
 
+    var austenderQuery = new AustenderQuery(now, connectionString);
+    var austenderData = await austenderQuery.GetAggregationsAsync();
+
+    var supplierQuery = new SupplierQuery(now, connectionString);
+    var supplierData = await supplierQuery.GetAggregationsAsync();
+
     var result = new {
         agencyData,
-        briefData
+        austenderData,
+        briefData,
+        supplierData
     };
     return new OkObjectResult(result);
 }
