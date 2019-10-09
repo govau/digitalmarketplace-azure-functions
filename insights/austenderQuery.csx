@@ -98,10 +98,27 @@ where	[Contract SON ID] in('SON3413842','SON3364729')
 
         var smeContractsPercentageThisMonth = smeContractsThisMonth / (double)totalContractsThisMonth * 100;
 
+        var topSuppliersThisFinancialYear = data
+            .Where(d =>
+                d.ContractStartDateFinancialYear == GetFinancialYearString(_now)
+            )
+            .GroupBy(d => new {
+                d.ContractSupplierMarketplaceName,
+                d.ContractSupplierMarketplaceSMEStatus
+            })
+            .Select((g) => new {
+                ContractSupplierMarketplaceName = g.Key.ContractSupplierMarketplaceName,
+                ContractSupplierMarketplaceSMEStatus= g.Key.ContractSupplierMarketplaceSMEStatus,
+                Count = g.Sum(d => d.TotalContracts)
+            })
+            .OrderByDescending(d => d.Count)
+            .Take(10);
+
         return new {
             smePercentage,
             smeContractsPercentageThisMonth,
             totalContractsThisMonth,
+            topSuppliersThisFinancialYear,
             totalValueAmount,
             totalValueAmountThisMonth
         };

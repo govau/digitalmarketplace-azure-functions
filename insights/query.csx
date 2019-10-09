@@ -30,4 +30,16 @@ internal class Query {
         }
         return reader.GetFieldValue<T>(i);
     }
+
+    protected string GetFinancialYearString(DateTime now) {
+        if (now.Month > 6) {
+            var thisYear = now.ToString("yyyy");
+            var nextYear = now.AddYears(1).ToString("yy");
+            return $"{thisYear}-{nextYear}";
+        } else {
+            var lastYear = now.AddYears(-1).ToString("yyyy");
+            var thisYear = now.ToString("yy");
+            return $"{lastYear}-{thisYear}";
+        }
+    }
 }
