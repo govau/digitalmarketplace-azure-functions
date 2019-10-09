@@ -9,6 +9,7 @@
 #load "vwRptMarketplaceAgency.csx"
 #load "agencyQuery.csx"
 #load "austenderQuery.csx"
+#load "briefResponseQuery.csx"
 #load "briefQuery.csx"
 #load "supplierQuery.csx"
 
@@ -39,10 +40,12 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
     if (string.IsNullOrWhiteSpace(queryNow) == false) {
         DateTime.TryParse(queryNow, out now);
     }
-    
 
     var agencyQuery = new AgencyQuery(connectionString);
     var agencyData = await agencyQuery.GetAggregationsAsync();
+
+    var briefResponseQuery = new BriefResponseQuery(now, connectionString);
+    var briefResponseData = await briefResponseQuery.GetAggregationsAsync();
 
     var briefQuery = new BriefQuery(now, connectionString);
     var briefData = await briefQuery.GetAggregationsAsync();
@@ -56,6 +59,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
     var result = new {
         agencyData,
         austenderData,
+        briefResponseData,
         briefData,
         supplierData
     };

@@ -2,13 +2,14 @@
 
 #load "query.csx"
 #load "vwRptMarketplaceSupplier.csx"
+#load "vwRptMarketplaceSupplierCategory.csx"
 #load "../NameCount.csx"
 
 using System.Data.SqlClient;
 
 internal class SupplierQuery : Query {
 
-    private readonly string _query = @"
+    private readonly string _vwRptMarketplaceSupplierQuery = @"
 SELECT [Supplier ABN]
       ,[Supplier Name]
       ,[Supplier SME Status (MP)]
@@ -35,14 +36,37 @@ SELECT [Supplier ABN]
       ,[ICT systems integration]
   FROM [Data].[VW_RPT_Marketplace_Supplier]
     ";
+
+    private readonly string _vwRptMarketplaceSupplierCategoryQuery = @"
+SELECT [Supplier ABN]
+      ,[Supplier Name]
+      ,[Supplier Status]
+      ,[Supplier Category Status]
+      ,[Supplier Category]
+  FROM [Data].[VW_RPT_Marketplace_Supplier_Category]
+    ";
+
     private readonly DateTime _now;
 
     public SupplierQuery(DateTime now, string connectionString) : base(connectionString) {
         _now = now;
     }
 
-    public async Task<List<VwRptMarketplaceSupplier>> GetDataAsync() {
-        return await base.ExecuteQueryAsync<VwRptMarketplaceSupplier>(_query, (reader) => (
+
+    public async Task<List<VwRptMarketplaceSupplierCategory>> GetVwRptMarketplaceSupplierCategoryDataAsync() {
+        return await base.ExecuteQueryAsync<VwRptMarketplaceSupplierCategory>(_vwRptMarketplaceSupplierCategoryQuery, (reader) => (
+            new VwRptMarketplaceSupplierCategory {
+                SupplierABN = GetFieldValueOrNull<string>(reader, 0),
+                SupplierName = GetFieldValueOrNull<string>(reader, 1),
+                SupplierStatus = GetFieldValueOrNull<string>(reader, 2),
+                SupplierCategoryStatus = GetFieldValueOrNull<string>(reader, 3),
+                SupplierCategory = GetFieldValueOrNull<string>(reader, 4)
+            }
+        ));
+    }
+
+    public async Task<List<VwRptMarketplaceSupplier>> GetVwRptMarketplaceSupplierDataAsync() {
+        return await base.ExecuteQueryAsync<VwRptMarketplaceSupplier>(_vwRptMarketplaceSupplierQuery, (reader) => (
             new VwRptMarketplaceSupplier {
                 SupplierABN = GetFieldValueOrNull<string>(reader, 0),
                 SupplierName = GetFieldValueOrNull<string>(reader, 1),
@@ -73,19 +97,31 @@ SELECT [Supplier ABN]
     }
 
     public async Task<dynamic> GetAggregationsAsync() {
-        var data = await GetDataAsync();
+        var vwRptMarketplaceSupplierData = await GetVwRptMarketplaceSupplierDataAsync();
 
-        var supplierCount = data
+        var supplierCount = vwRptMarketplaceSupplierData
             .Where(d => d.SupplierCreationDate.Date <= _now.Date)
             .Count();
 
-        var suppliersCreatedThisMonth = data
+        var suppliersCreatedThisMonth = vwRptMarketplaceSupplierData
             .Where(d => 
                 d.SupplierCreationDate.Year == _now.Year &&
                 d.SupplierCreationDate.Month == _now.Month)
             .Count();
 
+        var vwRptMarketplaceSupplierCategoryData = await GetVwRptMarketplaceSupplierCategoryDataAsync();
+
+        var numberOfSuppliersPerCategory = vwRptMarketplaceSupplierCategoryData
+            .GroupBy(d => d.SupplierCategory,
+                (key, d) => new NameCount {
+                    Name = key,
+                    Count = d.Count()
+                }
+            )
+            .OrderBy(d => d.Name);
+
         return new {
+            numberOfSuppliersPerCategory,
             supplierCount,
             suppliersCreatedThisMonth
         };

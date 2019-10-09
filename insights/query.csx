@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 internal class Query {
     protected readonly string _connectionString;
 
-    public Query(string connectionString) {
+    protected Query(string connectionString) {
         _connectionString = connectionString;
     }
 
