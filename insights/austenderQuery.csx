@@ -111,7 +111,7 @@ where	[Contract SON ID] in('SON3413842','SON3364729')
                 ContractSupplierMarketplaceSMEStatus= g.Key.ContractSupplierMarketplaceSMEStatus,
                 Count = g.Sum(d => d.TotalContracts)
             })
-            .OrderByDescending(d => d.Count)
+            .OrderByDescending(d => d.Count).ThenBy(d => d.ContractSupplierMarketplaceName)
             .Take(10);
 
         return new {

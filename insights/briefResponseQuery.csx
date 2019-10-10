@@ -62,24 +62,25 @@ SELECT [Brief ID]
     }
 
     public async Task<dynamic> GetAggregationsAsync() {
-        var dailyRates = await GetVwRptMarketplaceBriefResponseDayRateDataAsync();
-        var vwRptMarketplaceBriefResponseFrequencyData = await GetVwRptMarketplaceBriefResponseFrequencyDataAsync();
+        var dailyRatesData = await GetVwRptMarketplaceBriefResponseDayRateDataAsync();
+        var dailyRates = dailyRatesData.OrderBy(d => d.BriefCategory);
 
-        var responsesPerCategory = vwRptMarketplaceBriefResponseFrequencyData
+        var vwRptMarketplaceBriefResponseFrequencyData = await GetVwRptMarketplaceBriefResponseFrequencyDataAsync();
+        var responsesPerOpportunity = vwRptMarketplaceBriefResponseFrequencyData
             .GroupBy(d => new {
                 d.NoOfResponsesGroup,
                 d.BriefType
             })
             .Select(g => new {
-                NoOfResponsesGroup = g.Key.NoOfResponsesGroup,
+                NoOfResponses = g.Key.NoOfResponsesGroup,
                 BriefType = g.Key.BriefType,
                 Count = g.Count()
             })
-            .OrderBy(d => d.NoOfResponsesGroup);
+            .OrderBy(d => d.NoOfResponses);
 
         return new {
             dailyRates,
-            responsesPerCategory
+            responsesPerOpportunity
         };
     }
 }
