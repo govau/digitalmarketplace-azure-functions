@@ -35,10 +35,12 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
 
     var connectionString = config.GetConnectionString("DevProcurementConnectionString");
     
-    var queryNow = req.Query["now"];
+    var monthEnding = req.Query["monthEnding"];
     var now = DateTime.Now;
-    if (string.IsNullOrWhiteSpace(queryNow) == false) {
-        DateTime.TryParse(queryNow, out now);
+    now = new DateTime(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
+    if (string.IsNullOrWhiteSpace(monthEnding) == false) {
+        DateTime.TryParse(monthEnding, out now);
+        now = new DateTime(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
     }
 
     var agencyQuery = new AgencyQuery(connectionString);
