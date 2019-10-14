@@ -71,8 +71,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             );
         
         var openToAllBriefPercentage = openToAllBrief.Where(b => b.Name == "All").SingleOrDefault().Count /
-            (decimal)openToAllBrief.Sum(b => b.Count) *
-            100;
+            (decimal)openToAllBrief.Sum(b => b.Count);
 
         var specialistBrief = data
             .Where(d => d.BriefPublishedDate.Date <= _now.Date)
@@ -84,8 +83,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             );
         
         var specialistBriefPercentage = specialistBrief.Where(b => b.Name == "Specialist").SingleOrDefault().Count /
-            (decimal)specialistBrief.Sum(b => b.Count) *
-            100;
+            (decimal)specialistBrief.Sum(b => b.Count);
 
         var totalBriefs = data
             .Where(d => d.BriefPublishedDate.Date <= _now.Date)

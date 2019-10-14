@@ -61,7 +61,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
         austenderData,
         briefResponseData,
         briefData,
-        supplierData
+        supplierData,
+        thisMonth = now.ToString("MMMM yyyy")
     };
     return new OkObjectResult(result);
 }

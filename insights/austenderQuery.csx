@@ -70,7 +70,7 @@ where	[Contract SON ID] in('SON3413842','SON3364729')
             .Where(d => d.ContractStartDateMonthEnding.Date <= _now.Date)
             .Sum(a => a.TotalContractValueAmount);
 
-        var smePercentage = smeValueAmount / totalValueAmount * 100;
+        var smePercentage = smeValueAmount / totalValueAmount;
 
         var totalValueAmountThisMonth = data
             .Where(d =>
@@ -96,7 +96,7 @@ where	[Contract SON ID] in('SON3413842','SON3364729')
             .Where(d => d.ContractSupplierMarketplaceSMEStatus == "SME")
             .Sum(d => d.TotalContracts);
 
-        var smeContractsPercentageThisMonth = smeContractsThisMonth / (double)totalContractsThisMonth * 100;
+        var smeContractsPercentageThisMonth = smeContractsThisMonth / (double)totalContractsThisMonth;
 
         var topSuppliersThisFinancialYear = data
             .Where(d =>

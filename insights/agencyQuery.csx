@@ -35,7 +35,8 @@ FROM [Data].[VW_RPT_Marketplace_Agency]
             (key, e) => new NameCount {
                 Name = key,
                 Count = e.Count()
-            });
+            })
+            .OrderBy(d => d.Name);
 
         var agencyCommonwealthCounts = vwRptMarketplaceAgencies.GroupBy(
             a => a.AgencyCommonwealthFlag,
@@ -46,8 +47,7 @@ FROM [Data].[VW_RPT_Marketplace_Agency]
 
         var commonwealthPercent =
             agencyCommonwealthCounts.Where(a => a.Name == "Y").SingleOrDefault()?.Count /
-            (decimal)agencyCommonwealthCounts.Sum(a => a.Count) *
-            100;
+            (decimal)agencyCommonwealthCounts.Sum(a => a.Count);
 
         return new {
             agencyTypeCounts,
