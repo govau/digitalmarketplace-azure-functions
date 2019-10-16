@@ -42,7 +42,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log, Execut
 
     using (var azureClient = new HttpClient()) 
     using (var dmClient = new HttpClient()) {
-        var insightData = await azureClient.GetStringAsync($"{insightsUrl}monthEnding={nowString}");
+        var insightData = await azureClient.GetStringAsync($"{insightsUrl}&monthEnding={nowString}");
 
         var postObject = new {
             data = JsonConvert.DeserializeObject(insightData)
