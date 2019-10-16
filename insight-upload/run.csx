@@ -19,14 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 public static async Task<IActionResult> Run(HttpRequest req, ILogger log, ExecutionContext context) {
-    log.LogInformation("C# HTTP trigger function processed a request.");
-
-    var config = new ConfigurationBuilder()
-                .SetBasePath(context.FunctionAppDirectory)
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .Build();
-
     var dmApiUrl = Environment.GetEnvironmentVariable("dmApiUrl");
     var dmApiKey = Environment.GetEnvironmentVariable("dmApiKey");
     var insightsUrl = Environment.GetEnvironmentVariable("insightsUrl");
