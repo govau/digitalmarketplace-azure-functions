@@ -83,6 +83,8 @@ group by r.[Contract Supplier Marketplace SME Status]
     var smeValue = contracts.Where(c => c.SmeStatus == "SME").SingleOrDefault();
     var smePercentage = smeValue.TotalContracts / totalContracts;
 
-    return  (ActionResult)new OkObjectResult($"{totalValue}\n{smePercentage}");
-        //: new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+    return new OkObjectResult(new {
+        totalValue,
+        smePercentage
+    });
 }
