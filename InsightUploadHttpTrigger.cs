@@ -51,7 +51,7 @@ namespace Dta.Marketplace.Azure.Functions {
                 });
 
                 dmClient.DefaultRequestHeaders.Add("X-Api-Key", dmApiKey);
-                var response = await dmClient.PostAsync($"{dmApiUrl}/insight?now={nowString}", new StringContent(postData, Encoding.UTF8, "application/json"));
+                var response = await dmClient.PostAsync($"{dmApiUrl}/insight?monthEnding={nowString}", new StringContent(postData, Encoding.UTF8, "application/json"));
 
                 return new OkObjectResult(new {
                     nowString,
