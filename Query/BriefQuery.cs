@@ -111,7 +111,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
                     Count = b.Count()
                 })
                 .OrderByDescending(b => b.Count)
-                .Take(5);
+                .Take(10);
         }
         private int GetTotalBriefsThisMonth(List<VwRptMarketplaceBrief> briefs) {
             return briefs
