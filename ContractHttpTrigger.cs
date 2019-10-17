@@ -12,7 +12,7 @@ using Dta.Marketplace.Azure.Functions.Query;
 
 namespace Dta.Marketplace.Azure.Functions {
     public static class ContractHttpTrigger {
-        [FunctionName("ContractHttpTrigger")]
+        [FunctionName("Contract Http Trigger")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "contract")] HttpRequest req,
             ILogger log,ExecutionContext context) {

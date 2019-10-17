@@ -18,7 +18,7 @@ using Dta.Marketplace.Azure.Functions.Util;
 
 namespace Dta.Marketplace.Azure.Functions {
     public static class InsightUploadHttpTrigger {
-        [FunctionName("InsightUploadHttpTrigger")]
+        [FunctionName("Insight Upload Http Trigger")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "insight-upload")] HttpRequest req,
             ILogger log, ExecutionContext context) {
