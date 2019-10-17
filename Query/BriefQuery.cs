@@ -50,8 +50,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             var topBuyersThisMonth = data
                 .Where(
                     d => d.BriefPublishedDate.Year == _now.Year &&
-                         d.BriefPublishedDate.Month == _now.Month &&
-                         d.BriefAgencyName != "Not Specified"
+                         d.BriefPublishedDate.Month == _now.Month
                 )
                 .GroupBy(d => d.BriefAgencyName,
                     (key, b) => new NameCount {
