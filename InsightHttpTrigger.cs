@@ -12,7 +12,7 @@ using Dta.Marketplace.Azure.Functions.Business;
 
 namespace Dta.Marketplace.Azure.Functions {
     public static class InsightHttpTrigger {
-        [FunctionName("Insight Http Trigger")]
+        [FunctionName("InsightHttpTrigger")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "insight")] HttpRequest req,
             ILogger log, ExecutionContext context) {
