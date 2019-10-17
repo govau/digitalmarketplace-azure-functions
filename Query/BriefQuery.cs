@@ -59,7 +59,8 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
                     }
                 )
                 .OrderByDescending(d => d.Count)
-                .Take(5);
+                .ThenBy(d => d.Name)
+                .Take(10);
 
             var openToAllBrief = data
                 .Where(d => d.BriefPublishedDate.Date <= _now.Date)
