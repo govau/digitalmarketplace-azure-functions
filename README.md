@@ -1,6 +1,6 @@
 # digitalmarketplace-azure-functions
 
-loca.settings.json
+add to `local.settings.json`
 "AzureWebJobsStorage": "UseDevelopmentStorage=true"
 
 ## Starting the server
