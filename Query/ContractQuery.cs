@@ -42,7 +42,7 @@ group by r.[Contract Supplier Marketplace SME Status]
         public ContractQuery(string connectionString) : base(connectionString) { }
 
         public async Task<List<Contract>> GetAsync() {
-            return await base.ExecuteQueryAsync<Contract>(_query, (reader) => {
+            return await base.ExecuteReaderAsync<Contract>(_query, (reader) => {
                 return new Contract {
                     SmeStatus = reader.GetString(0),
                     TotalValue = reader.GetDouble(1),

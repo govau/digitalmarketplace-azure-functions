@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dta.Marketplace.Azure.Functions.Model;
 
-namespace Dta.Marketplace.Azure.Functions.Model {
+namespace Dta.Marketplace.Azure.Functions.Query {
     internal class AustenderQuery : BaseQuery {
 
         private readonly string _austenderQuery = @"
@@ -35,7 +35,7 @@ where	[Contract SON ID] in('SON3413842','SON3364729')
         }
 
         public async Task<List<VwRptAustenderContractSummary>> GetDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptAustenderContractSummary>(_austenderQuery, (reader) => {
+            return await base.ExecuteReaderAsync<VwRptAustenderContractSummary>(_austenderQuery, (reader) => {
                 var item = new VwRptAustenderContractSummary {
                     ContractStartDateFinancialYear = reader.GetString(0),
                     ContractStartDateMonthEnding = reader.GetDateTime(1),

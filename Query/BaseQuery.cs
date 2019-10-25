@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace Dta.Marketplace.Azure.Functions.Model {
+namespace Dta.Marketplace.Azure.Functions.Query {
     internal class BaseQuery {
         protected readonly string _connectionString;
 
@@ -11,7 +11,7 @@ namespace Dta.Marketplace.Azure.Functions.Model {
             _connectionString = connectionString;
         }
 
-        protected async Task<List<T>> ExecuteQueryAsync<T>(string sql, Func<SqlDataReader, T> processRowFunc) where T : class {
+        protected async Task<List<T>> ExecuteReaderAsync<T>(string sql, Func<SqlDataReader, T> processRowFunc) where T : class {
             var result = new List<T>();
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, connection)) {
@@ -24,6 +24,14 @@ namespace Dta.Marketplace.Azure.Functions.Model {
                 }
             }
             return result;
+        }
+
+        protected async Task<int> ExecuteNonQueryAsync(Func<SqlConnection, SqlCommand> createCommand) {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = createCommand(connection)) {
+                connection.Open();
+                return await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         protected T GetFieldValueOrNull<T>(SqlDataReader reader, int i) {
