@@ -7,8 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Dta.Marketplace.Azure.Functions.Query;
 
 namespace Dta.Marketplace.Azure.Functions {
-    public static class UpdateBriefHttpTrigger {
-        [FunctionName("UpdateBriefHttpTrigger")]
+    public static class UpdateBriefTimerTrigger {
+        [FunctionName("UpdateBriefTimerTrigger")]
         public static async Task Run(
             [TimerTrigger("0 0 20 * * *")]TimerInfo timer,
             ILogger log, ExecutionContext context) {
