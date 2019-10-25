@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dta.Marketplace.Azure.Functions.Model;
 
-namespace Dta.Marketplace.Azure.Functions.Model {
+namespace Dta.Marketplace.Azure.Functions.Query {
     internal class BriefQuery : BaseQuery {
 
         private readonly string _query = @"
@@ -17,6 +17,12 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
 	inner join [Reference].[VW_Ref_Date_Range_EOM]  dr on rd.Date_FY_NR = dr.Date_FY_NR 
 					         and rd.Date_FY_Month_NR <= case when dr.Row_FY_NR_desc = 1 then dr.Date_FY_Month_NR else 12 end
     ";
+
+        private readonly string _updateImpMarketplaceBrief = @"
+            UPDATE [zImport].[IMP_Marketplace_Brief]
+            SET [Marketplace_Brief_json] = @json
+        ";
+
         private readonly DateTime _now;
 
         public BriefQuery(DateTime now, string connectionString) : base(connectionString) {
@@ -24,7 +30,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
         }
 
         public async Task<List<VwRptMarketplaceBrief>> GetDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceBrief>(_query, (reader) => (
+            return await base.ExecuteReaderAsync<VwRptMarketplaceBrief>(_query, (reader) => (
                 new VwRptMarketplaceBrief {
                     BriefId = GetFieldValueOrNull<int>(reader, 0),
                     BriefTitle = GetFieldValueOrNull<string>(reader, 1),
@@ -42,6 +48,14 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
                     BriefPublishedDateLatestFinYearFlag = GetFieldValueOrNull<string>(reader, 13)
                 }
             ));
+        }
+
+        public async Task<int> UpdateImpMarketplaceBrief(string json) {
+            return await base.ExecuteNonQueryAsync(c => {
+                var command = new SqlCommand(_updateImpMarketplaceBrief, c);
+                command.Parameters.AddWithValue("@json", json);
+                return command;
+            });
         }
 
         public async Task<dynamic> GetAggregationsAsync() {

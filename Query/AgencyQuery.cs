@@ -19,7 +19,7 @@ FROM [Data].[VW_RPT_Marketplace_Agency]
         public AgencyQuery(string connectionString) : base(connectionString) { }
 
         public async Task<List<VwRptMarketplaceAgency>> GetAgenciesAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceAgency>(_agencyQuery, (reader) => {
+            return await base.ExecuteReaderAsync<VwRptMarketplaceAgency>(_agencyQuery, (reader) => {
                 return new VwRptMarketplaceAgency {
                     AgencyName = reader.GetString(0),
                     AgencyTypeOfBody = reader.GetString(1),

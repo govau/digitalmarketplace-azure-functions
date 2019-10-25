@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dta.Marketplace.Azure.Functions.Model;
 
-namespace Dta.Marketplace.Azure.Functions.Model {
+namespace Dta.Marketplace.Azure.Functions.Query {
     internal class BriefResponseQuery : BaseQuery {
 
         private readonly string _vwRptMarketplaceBriefResponseDayRateQuery = @"
@@ -28,6 +28,11 @@ SELECT [Brief ID]
   FROM [Data].[VW_RPT_Marketplace_Brief_Response_Frequency]
     ";
 
+        private readonly string _updateImpMarketplaceBriefResponse = @"
+            UPDATE [zImport].[IMP_Marketplace_Brief_Response]
+            SET [Marketplace_Brief_Response_json] = @json
+        ";
+
         private readonly DateTime _now;
 
         public BriefResponseQuery(DateTime now, string connectionString) : base(connectionString) {
@@ -35,7 +40,7 @@ SELECT [Brief ID]
         }
 
         public async Task<List<VwRptMarketplaceBriefResponseDayRate>> GetVwRptMarketplaceBriefResponseDayRateDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceBriefResponseDayRate>(_vwRptMarketplaceBriefResponseDayRateQuery, (reader) => (
+            return await base.ExecuteReaderAsync<VwRptMarketplaceBriefResponseDayRate>(_vwRptMarketplaceBriefResponseDayRateQuery, (reader) => (
                 new VwRptMarketplaceBriefResponseDayRate {
                     BriefCategory = GetFieldValueOrNull<string>(reader, 0),
                     BriefResponseDayRate25PC = GetFieldValueOrNull<double>(reader, 1),
@@ -46,7 +51,7 @@ SELECT [Brief ID]
         }
 
         public async Task<List<VwRptMarketplaceBriefResponseFrequency>> GetVwRptMarketplaceBriefResponseFrequencyDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceBriefResponseFrequency>(_vwRptMarketplaceBriefResponseFrequencyQuery, (reader) => (
+            return await base.ExecuteReaderAsync<VwRptMarketplaceBriefResponseFrequency>(_vwRptMarketplaceBriefResponseFrequencyQuery, (reader) => (
                 new VwRptMarketplaceBriefResponseFrequency {
                     BriefID = GetFieldValueOrNull<int>(reader, 0),
                     BriefCategory = GetFieldValueOrNull<string>(reader, 1),
@@ -58,6 +63,14 @@ SELECT [Brief ID]
                     NoOfResponsesGroup = GetFieldValueOrNull<string>(reader, 7)
                 }
             ));
+        }
+
+        public async Task<int> UpdateImpMarketplaceBriefResponse(string json) {
+            return await base.ExecuteNonQueryAsync(c => {
+                var command = new SqlCommand(_updateImpMarketplaceBriefResponse, c);
+                command.Parameters.AddWithValue("@json", json);
+                return command;
+            });
         }
 
         public async Task<dynamic> GetAggregationsAsync() {

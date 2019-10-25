@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dta.Marketplace.Azure.Functions.Model;
 
-namespace Dta.Marketplace.Azure.Functions.Model {
+namespace Dta.Marketplace.Azure.Functions.Query {
     internal class SupplierQuery : BaseQuery {
 
         private readonly string _vwRptMarketplaceSupplierQuery = @"
@@ -45,6 +45,11 @@ SELECT [Supplier ABN]
   FROM [Data].[VW_RPT_Marketplace_Supplier_Category]
     ";
 
+        private readonly string _updateImpMarketplaceSupplier = @"
+            UPDATE [zImport].[IMP_Marketplace_Supplier]
+            SET [Marketplace_Supplier_json] = @json
+        ";
+
         private readonly DateTime _now;
 
         public SupplierQuery(DateTime now, string connectionString) : base(connectionString) {
@@ -53,7 +58,7 @@ SELECT [Supplier ABN]
 
 
         public async Task<List<VwRptMarketplaceSupplierCategory>> GetVwRptMarketplaceSupplierCategoryDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceSupplierCategory>(_vwRptMarketplaceSupplierCategoryQuery, (reader) => (
+            return await base.ExecuteReaderAsync<VwRptMarketplaceSupplierCategory>(_vwRptMarketplaceSupplierCategoryQuery, (reader) => (
                 new VwRptMarketplaceSupplierCategory {
                     SupplierABN = GetFieldValueOrNull<string>(reader, 0),
                     SupplierName = GetFieldValueOrNull<string>(reader, 1),
@@ -65,7 +70,7 @@ SELECT [Supplier ABN]
         }
 
         public async Task<List<VwRptMarketplaceSupplier>> GetVwRptMarketplaceSupplierDataAsync() {
-            return await base.ExecuteQueryAsync<VwRptMarketplaceSupplier>(_vwRptMarketplaceSupplierQuery, (reader) => (
+            return await base.ExecuteReaderAsync<VwRptMarketplaceSupplier>(_vwRptMarketplaceSupplierQuery, (reader) => (
                 new VwRptMarketplaceSupplier {
                     SupplierABN = GetFieldValueOrNull<string>(reader, 0),
                     SupplierName = GetFieldValueOrNull<string>(reader, 1),
@@ -93,6 +98,14 @@ SELECT [Supplier ABN]
                     ICTSystemsIntegration = GetFieldValueOrNull<int?>(reader, 23)
                 }
             ));
+        }
+
+        public async Task<int> UpdateImpMarketplaceSupplier(string json) {
+            return await base.ExecuteNonQueryAsync(c => {
+                var command = new SqlCommand(_updateImpMarketplaceSupplier, c);
+                command.Parameters.AddWithValue("@json", json);
+                return command;
+            });
         }
 
         public async Task<dynamic> GetAggregationsAsync() {
