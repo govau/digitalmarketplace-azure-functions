@@ -16,6 +16,11 @@ SELECT [Agency Name]
 FROM [Data].[VW_RPT_Marketplace_Agency]
     ";
 
+        private readonly string _updateImpMarketplaceAgency = @"
+            UPDATE [zImport].[IMP_Marketplace_Agency]
+            SET [Marketplace_Agency_json] = @json
+        ";
+
         public AgencyQuery(string connectionString) : base(connectionString) { }
 
         public async Task<List<VwRptMarketplaceAgency>> GetAgenciesAsync() {
@@ -25,6 +30,14 @@ FROM [Data].[VW_RPT_Marketplace_Agency]
                     AgencyTypeOfBody = reader.GetString(1),
                     AgencyCommonwealthFlag = reader.GetString(2)
                 };
+            });
+        }
+
+        public async Task<int> UpdateImpMarketplaceAgency(string json) {
+            return await base.ExecuteNonQueryAsync(c => {
+                var command = new SqlCommand(_updateImpMarketplaceAgency, c);
+                command.Parameters.AddWithValue("@json", json);
+                return command;
             });
         }
 
