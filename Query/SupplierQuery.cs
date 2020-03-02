@@ -43,6 +43,7 @@ SELECT [Supplier ABN]
       ,[Supplier Category Status]
       ,[Supplier Category]
   FROM [Data].[VW_RPT_Marketplace_Supplier_Category]
+ WHERE [Supplier Category Status] = 'assessed'
     ";
 
         private readonly string _updateImpMarketplaceSupplier = @"
