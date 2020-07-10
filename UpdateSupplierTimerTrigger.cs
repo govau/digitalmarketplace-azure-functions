@@ -10,7 +10,7 @@ namespace Dta.Marketplace.Azure.Functions {
     public static class UpdateSupplierTimerTrigger {
         [FunctionName("UpdateSupplierTimerTrigger")]
         public static async Task Run(
-            [TimerTrigger("0 0 20 * * *")]TimerInfo timer,
+            [TimerTrigger("0 5 20 * * *")]TimerInfo timer,
             ILogger log, ExecutionContext context) {
             var config = new ConfigurationBuilder()
                 .SetBasePath(context.FunctionAppDirectory)
