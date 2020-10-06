@@ -105,6 +105,7 @@ SELECT [Supplier ABN]
             return await base.ExecuteNonQueryAsync(c => {
                 var command = new SqlCommand(_updateImpMarketplaceSupplier, c);
                 command.Parameters.AddWithValue("@json", json);
+                command.CommandTimeout = 90;
                 return command;
             });
         }

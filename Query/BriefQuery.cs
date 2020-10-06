@@ -54,6 +54,7 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
             return await base.ExecuteNonQueryAsync(c => {
                 var command = new SqlCommand(_updateImpMarketplaceBrief, c);
                 command.Parameters.AddWithValue("@json", json);
+                command.CommandTimeout = 90;
                 return command;
             });
         }

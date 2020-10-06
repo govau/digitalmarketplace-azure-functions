@@ -69,6 +69,7 @@ SELECT [Brief ID]
             return await base.ExecuteNonQueryAsync(c => {
                 var command = new SqlCommand(_updateImpMarketplaceBriefResponse, c);
                 command.Parameters.AddWithValue("@json", json);
+                command.CommandTimeout = 90;
                 return command;
             });
         }
