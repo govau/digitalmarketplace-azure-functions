@@ -16,6 +16,7 @@ namespace Dta.Marketplace.Azure.Functions.Query {
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, connection)) {
                 connection.Open();
+                cmd.CommandTimeout = 90;
 
                 using (var reader = await cmd.ExecuteReaderAsync()) {
                     while (reader.Read()) {
@@ -30,6 +31,7 @@ namespace Dta.Marketplace.Azure.Functions.Query {
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = createCommand(connection)) {
                 connection.Open();
+                cmd.CommandTimeout = 90;
                 return await cmd.ExecuteNonQueryAsync();
             }
         }
