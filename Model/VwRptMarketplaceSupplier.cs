@@ -26,5 +26,7 @@ namespace Dta.Marketplace.Azure.Functions.Model {
         public int? DigitalSourcingAndICTProcurement { get; set; }
         public int? ICTRiskManagementAndAuditActivities { get; set; }
         public int? ICTSystemsIntegration { get; set; }
+        public int? PlatformsIntegration { get; set; }
+        public int? ServiceIntegrationAndManagement { get; set; }
     }
 }
