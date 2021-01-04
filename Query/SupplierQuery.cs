@@ -33,6 +33,8 @@ SELECT [Supplier ABN]
       ,[Digital sourcing and ICT procurement]
       ,[ICT risk management and audit activities]
       ,[ICT systems integration]
+      ,[Platforms integration]
+      ,[Service Integration and Management]
   FROM [Data].[VW_RPT_Marketplace_Supplier]
     ";
 
@@ -96,7 +98,9 @@ SELECT [Supplier ABN]
                     UserResearchAndDesign = GetFieldValueOrNull<int?>(reader, 20),
                     DigitalSourcingAndICTProcurement = GetFieldValueOrNull<int?>(reader, 21),
                     ICTRiskManagementAndAuditActivities = GetFieldValueOrNull<int?>(reader, 22),
-                    ICTSystemsIntegration = GetFieldValueOrNull<int?>(reader, 23)
+                    ICTSystemsIntegration = GetFieldValueOrNull<int?>(reader, 23),
+                    PlatformsIntegration = GetFieldValueOrNull<int?>(reader, 24),
+                    ServiceIntegrationAndManagement = GetFieldValueOrNull<int?>(reader, 25)
                 }
             ));
         }
