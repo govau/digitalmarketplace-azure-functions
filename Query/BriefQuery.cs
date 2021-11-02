@@ -44,8 +44,8 @@ from	[Data].[VW_RPT_Marketplace_Brief] mb
                     MonthOfBriefPublishedDate = GetFieldValueOrNull<string>(reader, 9),
                     BriefWithdrawnDate = GetFieldValueOrNull<DateTime>(reader, 10),
                     BriefAgencyName = GetFieldValueOrNull<string>(reader, 11),
-                    BriefPublishedDateLatestMonthFlag = GetFieldValueOrNull<string>(reader, 12),
-                    BriefPublishedDateLatestFinYearFlag = GetFieldValueOrNull<string>(reader, 13)
+                    BriefPublishedDateLatestMonthFlag = GetFieldValueOrNull<string>(reader, 13),
+                    BriefPublishedDateLatestFinYearFlag = GetFieldValueOrNull<string>(reader, 14)
                 }
             ));
         }
